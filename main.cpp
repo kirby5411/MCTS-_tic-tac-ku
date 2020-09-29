@@ -10,6 +10,8 @@ int current_big_row;    //starting from 0 to 2
 int current_big_column; //starting from 0 to 2
 int previous_move_row;      //to determine legal move
 int previous_move_column;   //to determine legal move
+int player1_score; //save o score
+int player2_score; //save x score
 struct coordinate{ //to save the coordinate of moves
     int xy[2];
 };
@@ -90,6 +92,12 @@ void random_legal_move(int last_move_row,int last_move_column,char which_player)
             available[new_move_row][new_move_column] = '1';
             if(small_win(new_move_row/3,new_move_column/3)==true){ // if placing the move will win the small block
                 close_current_big(new_move_row/3,new_move_column/3);//close the small block
+                if(which_player=='o'){
+                    player1_score++;
+                }
+                else{
+                    player2_score++;
+                }
             }
             return;
         }
@@ -105,6 +113,12 @@ void random_legal_move(int last_move_row,int last_move_column,char which_player)
             available[new_move_row][new_move_column] = '1';
             if(small_win(new_move_row/3,new_move_column/3)==true){// if placing the move will win the small block
                 close_current_big(new_move_row/3,new_move_column/3);//close the small block
+                if(which_player=='o'){
+                    player1_score++;
+                }
+                else{
+                    player2_score++;
+                }
             }
             return;
         }
@@ -131,10 +145,11 @@ bool game_end(){
 
 int main()
 {
+    srand((unsigned) time(0)); // set the time as the seed of random number
     for(int i=0;i<9;i++){
         for(int j=0;j<9;j++){
           available[i][j]='0'; //initialize the available spots
-          board[i][j]='0'; //initialize the board
+          board[i][j]=' '; //initialize the board
         }
     }
     //initialize first move
@@ -147,19 +162,28 @@ int main()
     while(game_end()==false){ //keep playing randomly until the game end
         random_legal_move(previous_move_row,previous_move_column,current_player);
         for(int i=0;i<9;i++){
+          cout<<"|";
           for(int j=0;j<9;j++){
             cout<<board[i][j]; // monitor the moves
+            cout<<"|";
           }
           cout<<endl;
+          cout<<"-------------------";
+          cout<<endl;
         }
-        cout<<"----------------------"<<endl;
+        cout<<"****************************"<<endl;
         change_current_player();
     }
-    for(int i=0;i<9;i++){
-        for(int j=0;j<9;j++){
-            cout<<available[i][j]; //check the result
-        }
-        cout<<endl;
+    cout<<"o won "<<player1_score<<" blocks"<<endl;
+    cout<<"x won "<<player2_score<<" blocks"<<endl;
+    if(player1_score>player2_score){
+        cout<<"o has won!";
+    }
+    else if(player1_score<player2_score){
+        cout<<"x has won!";
+    }
+    else{
+        cout<<"It's a tie!";
     }
     return 0;
 }
