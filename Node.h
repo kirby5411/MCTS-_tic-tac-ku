@@ -16,7 +16,6 @@ class Node
             char who_now; //current player
         };
 
-        vector<nodes> tree_makeup;
         void expand(int elast_move_row,int elast_move_column, char[][] eavailable, nodes which_node){
             vector<coordinate> children = get_legal_move(elast_move_row, elast_move_column, eavailable);
             int temp_size = tree_makeup.size();
@@ -69,11 +68,37 @@ class Node
             return reward(swhich_player);
         }
 
-        void selection(){
+        nodes selection(){
             //help
         }
-        Node();
-        virtual ~Node();
+
+        coordinate MCTS(char[][] main_board, char[][] main_available){
+            char temp_board[9][9];
+            char temp_available[9][9];
+            vector<nodes> tree_makeup;
+            while(/*²×¤î±ø¥ó*/){
+                for(int i=0;i<9;i++){
+                    for(int j=0;j<9;j++){
+                        temp_available[i][j] = main_available[i][j];
+                        temp_board[i][j] = main_board[i][j];
+                    }
+                }
+                nodes leave = selection();
+                update(stimulate(leave.action.xy[0],leave.action.xy[1],leave.who_now,temp_available,temp_board),leave.index);
+            }
+            int i=0;
+            double max_value=-100;
+            int index_of_max_value_node;
+            while(tree_makeup[i].mother==0){
+                if(tree_makeup[i].value>max_value){
+                    max_value = tree_makeup[i].value;
+                    index_of_max_value_node = i;
+                    i++;
+                }
+            }
+            return tree_makeup[index_of_max_value_node].coordinate;
+        }
+
 
     protected:
 
