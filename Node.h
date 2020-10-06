@@ -72,10 +72,15 @@ class Node
             //help
         }
 
-        coordinate MCTS(char[][] main_board, char[][] main_available){
+        coordinate MCTS(char[][] main_board, char[][] main_available, char pawn){
             char temp_board[9][9];
             char temp_available[9][9];
             vector<nodes> tree_makeup;
+            nodes root;
+            root.index=0;
+            root.mother=-1;
+            root.who_now = pawn;
+            tree_makeup.push_back(root);
             while(/*²×¤î±ø¥ó*/){
                 for(int i=0;i<9;i++){
                     for(int j=0;j<9;j++){
@@ -83,7 +88,7 @@ class Node
                         temp_board[i][j] = main_board[i][j];
                     }
                 }
-                nodes leave = selection();
+                nodes leave = selection(); // use expand function within selection
                 update(stimulate(leave.action.xy[0],leave.action.xy[1],leave.who_now,temp_available,temp_board),leave.index);
             }
             int i=0;
