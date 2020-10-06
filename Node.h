@@ -43,12 +43,12 @@ class Node
                     tree_makeup[utemp].score+=ureward; // add reward to score
                 }
                 else{
-                    tree_makeup[utemp].score-=ureward; // reduct reward from score
+                    tree_makeup[utemp].score-=ureward; // subtract reward from score
                 }
                 tree_makeup[utemp].value = double(score)/double(index); //calculate new value for the node
                 utemp = tree_makeup[utemp].mother; //track back to the mother of the node
             }
-            tree_makeup[utemp].visit_time++;
+            tree_makeup[utemp].visit_time++; //for root node
             if(tree_makeup[utemp].who_now==tree_makeup[start_node_index].who_now){ // whether the node has the same player as the stimulated node
                 tree_makeup[utemp].score+=ureward; // add reward to score
             }
@@ -68,11 +68,26 @@ class Node
             return reward(swhich_player);
         }
 
-        nodes selection(){
-            //help
+        nodes selection(nodes start_select){
+            int visit_count = 0;
+            int true_value=-10000;
+            int index = -1;
+            for(int i=0;i<start_select.sons.size();i++){
+                visit_count += start_select.sons[i].visit_time;
+            }
+            for(int i=0;i<start_select.sons.size();i++){
+                if(start_select.sons[i].visit_time = 0){
+                    return start_select.sons[i];
+                }
+                else if(true_value < -start_select.sons[i].score/start_select.sons[i].visit_time+sqrt(2*log(visit_count))/(start_select.sons[i].visit_time)){
+                    true_value = -start_select.sons[i].score/start_select.sons[i].visit_time+sqrt(2*log(visit_count))/(start_select.sons[i].visit_time);
+                    index = i;
+                }
+            }
+            return start_select.sons[index];
         }
 
-        coordinate MCTS(char[][] main_board, char[][] main_available, char pawn){
+        coordinate MCTS(int mlast_move_row, int mlast_move_column, char[][] main_board, char[][] main_available, char pawn){
             char temp_board[9][9];
             char temp_available[9][9];
             vector<nodes> tree_makeup;
@@ -81,15 +96,30 @@ class Node
             root.mother=-1;
             root.who_now = pawn;
             tree_makeup.push_back(root);
-            while(/*²×¤î±ø¥ó*/){
+            int running_times = 800;
+            while(running_times>0){
                 for(int i=0;i<9;i++){
                     for(int j=0;j<9;j++){
                         temp_available[i][j] = main_available[i][j];
                         temp_board[i][j] = main_board[i][j];
                     }
                 }
-                nodes leave = selection(); // use expand function within selection
-                update(stimulate(leave.action.xy[0],leave.action.xy[1],leave.who_now,temp_available,temp_board),leave.index);
+                if(tree_makeup.size()==1){
+                    expand(mlast_move_row,mlast_move_column, temp_available, tree_makeup[0]); //set up basic tow depth tree
+                }
+                node leave = tree_makeup[0];
+                while(leave.sons.size()!=0){ //keep selecting until reach the leave
+                    leave = selection(leave);
+                }
+                if(leave.visit_time==0){ //if leave hasn't been visited
+                    update(stimulate(leave.action.xy[0],leave.action.xy[1],leave.who_now,temp_available,temp_board),leave.index); //do stimulation
+                }
+                else{ //if leave was visited
+                    expand(mlast_move_row,mlast_move_column, temp_available, tree_makeup[0]); //expand the leave
+                    leave = selection(leave); //select an expanded leave
+                    update(stimulate(leave.action.xy[0],leave.action.xy[1],leave.who_now,temp_available,temp_board),leave.index); //do stimulation
+                }
+                running_times--;
             }
             int i=0;
             double max_value=-100;
