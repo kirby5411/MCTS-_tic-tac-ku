@@ -11,16 +11,18 @@ class Board
         struct coordinate{ //to save the coordinate of moves
             int xy[2];
         };
-        TDCA available;   //0 = available, 1 = occupied
-        TDCA board;
-        char players[2]={'o','x'};  //players[0] is o, players[1] is x
-        char current_player;
-        int current_big_row;    //starting from 0 to 2
-        int current_big_column; //starting from 0 to 2
-        int previous_move_row;      //to determine legal move
-        int previous_move_column;   //to determine legal move
-        int player1_score; //save o score
-        int player2_score; //save x score
+        static TDCA available;   //0 = available, 1 = occupied
+        static TDCA board;
+        static char players[2];  //players[0] is o, players[1] is x
+        players[0]={'o'};
+        players[1]={'x'};
+        static char current_player;
+        static int current_big_row;    //starting from 0 to 2
+        static int current_big_column; //starting from 0 to 2
+        static int previous_move_row;      //to determine legal move
+        static int previous_move_column;   //to determine legal move
+        static int player1_score; //save o score
+        static int player2_score; //save x score
         bool small_win(int current_big_row,int current_big_column, TDCA sboard){
             //check row
             for(int i=current_big_row*3; i<current_big_row*3+3;i++){
