@@ -32,8 +32,8 @@ int main()
             cout<<"Please enter a valid choice."<<endl;
         }
     }*/
-    current_player = player[0];
-    if(current_player = 'o'){
+    current_player = players[0];
+    if(current_player == 'o'){
         cout<<endl<<"Please enter the x coordinate of your move: ";
         cin>> previous_move_row;
         cout<<endl<<"Please enter the y coordinate of your move: ";
@@ -46,8 +46,8 @@ int main()
         coordinate computer_move = MCTS(previous_move_row, previous_move_column, board,available,current_player);
         previous_move_row = computer_move.xy[0];
         previous_move_column = computer_move.xy[1];
-        available[previous_move_row][previous_move_column] = '1';
-        board[previous_move_row][previous_move_column] = current_player;
+        available.Arr[previous_move_row][previous_move_column] = '1';
+        board.Arr[previous_move_row][previous_move_column] = current_player;
         current_player = charge_current_player(current_player);
         for(int i=0;i<9;i++){
           cout<<"|";

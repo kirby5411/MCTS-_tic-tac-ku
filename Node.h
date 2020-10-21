@@ -1,23 +1,23 @@
 #ifndef NODE_H
 #define NODE_H
-#include "Board,h"
-
+#include "Board.h"
+using namespace std;
 class Node
 {
     public:
         struct nodes{
             int mother;
             vector<int> sons;
-            coordinate action;
+            Board::coordinate action;
             int index;
             int score;
             int visit_time;
             double final_value;
             char who_now; //current player
         };
-
-        void expand(int elast_move_row,int elast_move_column, char[][] eavailable, nodes which_node){
-            vector<coordinate> children = get_legal_move(elast_move_row, elast_move_column, eavailable);
+        vector<nodes> tree_makeup;
+        void expand(int elast_move_row,int elast_move_column, Board::TDCA eavailable, nodes which_node){
+            vector<Board::coordinate> children = get_legal_move(elast_move_row, elast_move_column, eavailable);
             int temp_size = tree_makeup.size();
             for(int i=0;i<children.size();i++){
                 which_node.sons.push_back(temp_size+i); //save the index of the sons of the node
@@ -26,10 +26,10 @@ class Node
                 etemp.index = tree_makeup.size()+i; //set up the index
                 etemp.action = children[i];
                 if(which_node.who_now=='o'){
-                    etemp.who_now=='x';
+                    etemp.who_now='x';
                 }
                 else{
-                    etemp.who_now=='o';
+                    etemp.who_now='o';
                 }
                 tree_makeup.push_back(etemp); //push the node into the node vector
             }
@@ -45,7 +45,7 @@ class Node
                 else{
                     tree_makeup[utemp].score-=ureward; // subtract reward from score
                 }
-                tree_makeup[utemp].value = double(score)/double(index); //calculate new value for the node
+                tree_makeup[utemp].final_value = double(tree_makeup[utemp].score)/double(tree_makeup[utemp].index); //calculate new value for the node
                 utemp = tree_makeup[utemp].mother; //track back to the mother of the node
             }
             tree_makeup[utemp].visit_time++; //for root node
@@ -55,11 +55,11 @@ class Node
             else{
                 tree_makeup[utemp].score-=ureward; // reduct reward from score
             }
-            tree_makeup[utemp].value = double(score)/double(index);
+            tree_makeup[utemp].final_value = double(tree_makeup[utemp].score)/double(tree_makeup[utemp].index);
             return;
         }
 
-        int stimulate(int slast_move_row,int slast_move_column, char, swhich_player, char[][] savailable, char[][] sboard){
+        int stimulate(int slast_move_row,int slast_move_column, char swhich_player, Board::TDCA savailable, Board::TDCA sboard){
             char player = swhich_player;
             while(game_end(savailable)==false){
                 random_legal_move(slast_move_row, slast_move_column, player, savailable, sboard); //keep playing randomly
@@ -73,24 +73,23 @@ class Node
             int true_value=-10000;
             int index = -1;
             for(int i=0;i<start_select.sons.size();i++){
-                visit_count += start_select.sons[i].visit_time;
+                visit_count += tree_makeup[start_select.sons[i]].visit_time;
             }
             for(int i=0;i<start_select.sons.size();i++){
-                if(start_select.sons[i].visit_time = 0){
-                    return start_select.sons[i];
+                if(tree_makeup[start_select.sons[i]].visit_time == 0){
+                    return tree_makeup[start_select.sons[i]];
                 }
-                else if(true_value < -start_select.sons[i].score/start_select.sons[i].visit_time+sqrt(2*log(visit_count))/(start_select.sons[i].visit_time)){
-                    true_value = -start_select.sons[i].score/start_select.sons[i].visit_time+sqrt(2*log(visit_count))/(start_select.sons[i].visit_time);
+                else if(true_value < -tree_makeup[start_select.sons[i]].score/tree_makeup[start_select.sons[i]].visit_time+sqrt(2*log(visit_count))/(tree_makeup[start_select.sons[i]].visit_time)){
+                    true_value = -tree_makeup[start_select.sons[i]].score/tree_makeup[start_select.sons[i]].visit_time+sqrt(2*log(visit_count))/(tree_makeup[start_select.sons[i]].visit_time);
                     index = i;
                 }
             }
-            return start_select.sons[index];
+            return tree_makeup[start_select.sons[index]];
         }
 
-        coordinate MCTS(int mlast_move_row, int mlast_move_column, char[][] main_board, char[][] main_available, char pawn){
-            char temp_board[9][9];
-            char temp_available[9][9];
-            vector<nodes> tree_makeup;
+        Board::coordinate MCTS(int mlast_move_row, int mlast_move_column, Board::TDCA main_board, Board::TDCA main_available, char pawn){
+            Board::TDCA temp_board;
+            Board::TDCA temp_available;
             nodes root;
             root.index=0;
             root.mother=-1;
@@ -100,14 +99,14 @@ class Node
             while(running_times>0){
                 for(int i=0;i<9;i++){
                     for(int j=0;j<9;j++){
-                        temp_available[i][j] = main_available[i][j];
-                        temp_board[i][j] = main_board[i][j];
+                        temp_available.Arr[i][j] = main_available.Arr[i][j];
+                        temp_board.Arr[i][j] = main_board.Arr[i][j];
                     }
                 }
                 if(tree_makeup.size()==1){
                     expand(mlast_move_row,mlast_move_column, temp_available, tree_makeup[0]); //set up basic tow depth tree
                 }
-                node leave = tree_makeup[0];
+                nodes leave = tree_makeup[0];
                 while(leave.sons.size()!=0){ //keep selecting until reach the leave
                     leave = selection(leave);
                 }
@@ -125,13 +124,13 @@ class Node
             double max_value=-100;
             int index_of_max_value_node;
             while(tree_makeup[i].mother==0){
-                if(tree_makeup[i].value>max_value){
-                    max_value = tree_makeup[i].value;
+                if(tree_makeup[i].final_value>max_value){
+                    max_value = tree_makeup[i].final_value;
                     index_of_max_value_node = i;
                     i++;
                 }
             }
-            return tree_makeup[index_of_max_value_node].coordinate;
+            return tree_makeup[index_of_max_value_node].action;
         }
 
 
