@@ -7,6 +7,8 @@ using namespace std;
 
 int main()
 {
+    Board::players[0]={'o'};
+    Board::players[1]={'x'};
     srand((unsigned) time(0)); // set the time as the seed of random number
     for(int i=0;i<9;i++){
         for(int j=0;j<9;j++){
