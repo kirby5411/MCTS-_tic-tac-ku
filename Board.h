@@ -14,8 +14,6 @@ class Board
         static TDCA available;   //0 = available, 1 = occupied
         static TDCA board;
         static char players[2];  //players[0] is o, players[1] is x
-        players[0]={'o'};
-        players[1]={'x'};
         static char current_player;
         static int current_big_row;    //starting from 0 to 2
         static int current_big_column; //starting from 0 to 2

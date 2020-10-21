@@ -5,6 +5,7 @@ using namespace std;
 class Node
 {
     public:
+        Board b;
         struct nodes{
             int mother;
             vector<int> sons;
@@ -17,7 +18,7 @@ class Node
         };
         vector<nodes> tree_makeup;
         void expand(int elast_move_row,int elast_move_column, Board::TDCA eavailable, nodes which_node){
-            vector<Board::coordinate> children = get_legal_move(elast_move_row, elast_move_column, eavailable);
+            vector<Board::coordinate> children = b.get_legal_move(elast_move_row, elast_move_column, eavailable);
             int temp_size = tree_makeup.size();
             for(int i=0;i<children.size();i++){
                 which_node.sons.push_back(temp_size+i); //save the index of the sons of the node
@@ -61,11 +62,11 @@ class Node
 
         int stimulate(int slast_move_row,int slast_move_column, char swhich_player, Board::TDCA savailable, Board::TDCA sboard){
             char player = swhich_player;
-            while(game_end(savailable)==false){
-                random_legal_move(slast_move_row, slast_move_column, player, savailable, sboard); //keep playing randomly
-                player = change_current_player(player); //switch turn
+            while(b.game_end(savailable)==false){
+                b.random_legal_move(slast_move_row, slast_move_column, player, savailable, sboard); //keep playing randomly
+                player = b.change_current_player(player); //switch turn
             }
-            return reward(swhich_player);
+            return b.reward(swhich_player);
         }
 
         nodes selection(nodes start_select){
