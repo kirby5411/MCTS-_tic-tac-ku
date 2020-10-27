@@ -4,21 +4,31 @@
 using namespace std;
 
 
+char players[2];  //players[0] is o, players[1] is x
+char current_player;
+int current_big_row;    //starting from 0 to 2
+int current_big_column; //starting from 0 to 2
+int previous_move_row;      //to determine legal move
+int previous_move_column;   //to determine legal move
+int p1_score;
+int p2_score;
 
 int main()
 {
-  Board b;
-  Node n;
-    b.players[0]={'o'};
-    b.players[1]={'x'};
+    Board b;
+    Node n;
+    Board::TDCA available;   //0 = available, 1 = occupied
+    Board::TDCA board;
+    players[0]={'o'};
+    players[1]={'x'};
     srand((unsigned) time(0)); // set the time as the seed of random number
     for(int i=0;i<9;i++){
         for(int j=0;j<9;j++){
-          b.available.Arr[i][j]='0'; //initialize the available spots
-          b.board.Arr[i][j]=' '; //initialize the board
+          available.Arr[i][j]='0'; //initialize the available spots
+          board.Arr[i][j]=' '; //initialize the board
         }
     }
-    bool correct_enter = false;
+    //bool correct_enter = false;
     //initialize first move
     /*while(correct_enter==false){
         cout<<"Enter 1 if you want to go first. Enter 2 if you don't want to."<<endl;
@@ -36,27 +46,28 @@ int main()
             cout<<"Please enter a valid choice."<<endl;
         }
     }*/
-    b.current_player = b.players[0];
-    if(b.current_player == 'o'){
+    current_player = players[0];
+    if(current_player == 'o'){
         cout<<endl<<"Please enter the x coordinate of your move: ";
-        cin>> b.previous_move_row;
+        cin>> previous_move_row;
         cout<<endl<<"Please enter the y coordinate of your move: ";
-        cin>> b.previous_move_column;
-        b.available.Arr[b.previous_move_row][b.previous_move_column] = '1';
-        b.board.Arr[b.previous_move_row][b.previous_move_column] = b.current_player;
-        b.current_player = b.change_current_player(b.current_player);
+        cin>> previous_move_column;
+        available.Arr[previous_move_row][previous_move_column] = '1';
+        board.Arr[previous_move_row][previous_move_column] = current_player;
+        current_player = b.change_current_player(current_player);
     }
-    while(b.game_end(b.available)==false){ //keep playing until the game end
-        Board::coordinate computer_move = n.MCTS(b.previous_move_row, b.previous_move_column, b.board,b.available,b.current_player);
-        b.previous_move_row = computer_move.xy[0];
-        b.previous_move_column = computer_move.xy[1];
-        b.available.Arr[b.previous_move_row][b.previous_move_column] = '1';
-        b.board.Arr[b.previous_move_row][b.previous_move_column] = b.current_player;
-        b.current_player = b.change_current_player(b.current_player);
+    while(b.game_end(available)==false){ //keep playing until the game end
+        cout<<"to while";
+        Board::coordinate computer_move = n.MCTS(previous_move_row, previous_move_column, board,available,current_player);
+        cout<<"computer move is: ("<<computer_move.xy[0]<<","<<computer_move.xy[1]<<")"<<endl;
+        previous_move_row = computer_move.xy[0];
+        previous_move_column = computer_move.xy[1];
+        available.Arr[previous_move_row][previous_move_column] = '1';
+        board.Arr[previous_move_row][previous_move_column] = current_player;
         for(int i=0;i<9;i++){
           cout<<"|";
           for(int j=0;j<9;j++){
-            cout<<b.board.Arr[i][j]; // monitor the moves
+            cout<<board.Arr[i][j]; // monitor the moves
             cout<<"|";
           }
           cout<<endl;
@@ -64,18 +75,30 @@ int main()
           cout<<endl;
         }
         cout<<"****************************"<<endl;
-        if(b.game_end(b.available)==true){
+        if(b.game_end(available)==true){
             break;
         }
+        if(b.small_win(previous_move_row/3,previous_move_column/3,board)==true){
+            if(current_player=='o'){
+                p1_score++;
+
+            }
+            else{
+                p2_score++;
+            }
+            available = b.close_current_big(previous_move_row/3,previous_move_column/3,available);
+            board = b.close_current_big_board(previous_move_row/3,previous_move_column/3,board,current_player);
+        }
+        current_player = b.change_current_player(current_player);
         bool is_legal = false;
-        vector<Board::coordinate> legal_moves = b.get_legal_move(b.previous_move_row,b.previous_move_column,b.available);
+        vector<Board::coordinate> legal_moves = b.get_legal_move(previous_move_row,previous_move_column,available);
         while(is_legal==false){
             cout<<endl<<"Please enter the x coordinate of your move: ";
-            cin>> b.previous_move_row;
+            cin>> previous_move_row;
             cout<<endl<<"Please enter the y coordinate of your move: ";
-            cin>> b.previous_move_column;
-            for(int i=0;i<legal_moves.size();i++){
-                if(legal_moves[i].xy[0]==b.previous_move_row&&legal_moves[i].xy[1]==b.previous_move_column){
+            cin>> previous_move_column;
+            for(int i=0;i<(int)legal_moves.size();i++){
+                if(legal_moves[i].xy[0]==previous_move_row&&legal_moves[i].xy[1]==previous_move_column){
                     is_legal=true;
                     break;
                 }
@@ -84,13 +107,12 @@ int main()
                 cout<<"Please enter a legal coordinate!"<<endl;
             }
         }
-        b.available.Arr[b.previous_move_row][b.previous_move_column] = '1';
-        b.board.Arr[b.previous_move_row][b.previous_move_column] = b.current_player;
-        b.current_player = b.change_current_player(b.current_player);
+        available.Arr[previous_move_row][previous_move_column] = '1';
+        board.Arr[previous_move_row][previous_move_column] = current_player;
         for(int i=0;i<9;i++){
           cout<<"|";
           for(int j=0;j<9;j++){
-            cout<<b.board.Arr[i][j]; // monitor the moves
+            cout<<board.Arr[i][j]; // monitor the moves
             cout<<"|";
           }
           cout<<endl;
@@ -98,13 +120,25 @@ int main()
           cout<<endl;
         }
         cout<<"****************************"<<endl;
+        if(b.small_win(previous_move_row/3,previous_move_column/3,board)==true){
+            if(current_player=='o'){
+                p1_score++;
+
+            }
+            else{
+                p2_score++;
+            }
+            available = b.close_current_big(previous_move_row/3,previous_move_column/3,available);
+            board = b.close_current_big_board(previous_move_row/3,previous_move_column/3,board,current_player);
+        }
+        current_player = b.change_current_player(current_player);
     }
-    cout<<"o won "<<b.player1_score<<" blocks"<<endl;
-    cout<<"x won "<<b.player2_score<<" blocks"<<endl;
-    if(b.player1_score>b.player2_score){
+    cout<<"o won "<<p1_score<<" blocks"<<endl;
+    cout<<"x won "<<p2_score<<" blocks"<<endl;
+    if(p1_score>p2_score){
         cout<<"o has won!";
     }
-    else if(b.player1_score<b.player2_score){
+    else if(p1_score<p2_score){
         cout<<"x has won!";
     }
     else{
