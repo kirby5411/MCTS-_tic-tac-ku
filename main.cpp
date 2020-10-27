@@ -57,7 +57,6 @@ int main()
         current_player = b.change_current_player(current_player);
     }
     while(b.game_end(available)==false){ //keep playing until the game end
-        cout<<"to while";
         Board::coordinate computer_move = n.MCTS(previous_move_row, previous_move_column, board,available,current_player);
         cout<<"computer move is: ("<<computer_move.xy[0]<<","<<computer_move.xy[1]<<")"<<endl;
         previous_move_row = computer_move.xy[0];

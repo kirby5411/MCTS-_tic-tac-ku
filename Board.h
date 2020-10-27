@@ -53,14 +53,7 @@ class Board
             vector<coordinate> list_of_legal_move;
             list_of_legal_move.clear(); //initialize vector
             //determine whether there is still available moves in the block
-            cout<<"in get_legal_move"<<endl;
             bool this_block_full = true;
-            for(int i=0;i<9;i++){
-                    for(int j=0;j<9;j++){
-                        cout<<vavailable.Arr[i][j];
-                    }
-                    cout<<endl;
-                }
             for(int i = (vlast_move_row%3)*3; i < (vlast_move_row%3)*3+3;i++){
                 for(int j = (vlast_move_column%3)*3; j < (vlast_move_column%3)*3+3;j++){
                     if(vavailable.Arr[i][j]=='0'){
@@ -70,7 +63,6 @@ class Board
             }
             // if the block is full, randomly pick a space in the whole board
             if(this_block_full == true){
-                    cout<<"block full"<<endl;
                 for(int i=0;i<9;i++){
                     for(int j=0;j<9;j++){
                         if(vavailable.Arr[i][j]=='0'){
@@ -85,7 +77,6 @@ class Board
             }
             //if there are available spaces in the block
             else{
-                cout<<"block not full"<<endl;
                 for(int i=(vlast_move_row%3)*3;i<(vlast_move_row%3)*3+3;i++){
                     for(int j=(vlast_move_column%3)*3;j<(vlast_move_column%3)*3+3;j++){
                         if(vavailable.Arr[i][j]=='0'){
@@ -120,18 +111,12 @@ class Board
             char rstarting_player = which_player;
             while(game_end(ravailable)==false){
                 int pick=0;
-                cout<<"in rlm"<<endl;
                 vector<coordinate> pick_move = get_legal_move(new_move_row, new_move_column,ravailable); // assign the list of moves to the pick_move vector
-                cout<<"successful generate move list"<<endl;
-                cout<<pick_move.size()<<endl;
                 pick = rand()%(pick_move.size()); //randomly pick a move in the legal moves
-                cout<<"generate random number"<<endl;
                 new_move_row = pick_move[pick].xy[0];    //assign the new move's coordinate to the new_move_row
                 new_move_column = pick_move[pick].xy[1]; //assign the new move's coordinate to the new_move_column
-                cout<<"assigned legal move to variable"<<endl;
                 rboard.Arr[new_move_row][new_move_column] = which_player;
                 ravailable.Arr[new_move_row][new_move_column] = '1';
-                cout<<"finish update all"<<endl;
                 if(small_win(new_move_row/3,new_move_column/3,rboard)==true){ // if placing the move will win the small block
                     ravailable = close_current_big(new_move_row/3,new_move_column/3,ravailable);//close the small block
                     rboard = close_current_big_board(new_move_row/3,new_move_column/3,rboard,which_player);
@@ -144,7 +129,6 @@ class Board
                 }
                 which_player = change_current_player(which_player);
             }
-            cout<<"out stimulate while"<<endl;
             return reward(rstarting_player, player1_score, player2_score);
         }
 
