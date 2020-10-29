@@ -158,21 +158,21 @@ class Board
                     return 1;
                 }
                 else if(rplayer1_score<rplayer2_score){
-                    return -1;
+                    return 0;
                 }
                 else{
-                    return -1;
+                    return 0;
                 }
             }
             else{
                 if(rplayer1_score>rplayer2_score){
-                    return -1;
+                    return 0;
                 }
                 else if(rplayer1_score<rplayer2_score){
                     return 1;
                 }
                 else{
-                    return -1;
+                    return 0;
                 }
             }
         }

@@ -46,20 +46,28 @@ class Node
             while(utree_makeup[utemp].index!=0){ // if the node is not the root
                 utree_makeup[utemp].visit_time = utree_makeup[utemp].visit_time+1; // add one visit time
                 if(utree_makeup[utemp].who_now==utree_makeup[start_node_index].who_now){ // whether the node has the same player as the stimulated node
-                    utree_makeup[utemp].score+=ureward; // add reward to score
+                    utree_makeup[utemp].score = utree_makeup[utemp].score+ureward; // add reward to score
                 }
                 else{
-                    utree_makeup[utemp].score-=ureward; // subtract reward from score
+                    if(ureward==0){
+                        utree_makeup[utemp].score = utree_makeup[utemp].score+1; // add a point to the winning side
+                    }
+                    else{ //leave the score as it is for the losing side
+                    }
                 }
                 utree_makeup[utemp].final_value = double(utree_makeup[utemp].score)/double(utree_makeup[utemp].visit_time); //calculate new value for the node
                 utemp = utree_makeup[utemp].mother; //track back to the mother of the node
             }
-            utree_makeup[utemp].visit_time++; //for root node
+            utree_makeup[utemp].visit_time = utree_makeup[utemp].visit_time + 1; //for root node
             if(utree_makeup[utemp].who_now==utree_makeup[start_node_index].who_now){ // whether the node has the same player as the stimulated node
-                utree_makeup[utemp].score+=ureward; // add reward to score
+                utree_makeup[utemp].score = utree_makeup[utemp].score + ureward; // add reward to score
             }
             else{
-                utree_makeup[utemp].score-=ureward; // reduct reward from score
+                if(ureward==0){
+                    utree_makeup[utemp].score = utree_makeup[utemp].score+1; // add a point to the winning side
+                }
+                else{ //leave the score as it is for the losing side
+                }
             }
             utree_makeup[utemp].final_value = double(utree_makeup[utemp].score)/double(utree_makeup[utemp].visit_time);
             return utree_makeup;
@@ -72,8 +80,9 @@ class Node
         }
         nodes selection(nodes start_select,vector<nodes> stree_makeup){
             int visit_count = 0;
-            int true_value=-10000;
+            double true_value=-10000;
             int index = -1;
+            //cout<<"true value is "<<strue_value<<endl;
             for(int i=0;i<(int)start_select.sons.size();i++){
                 visit_count += stree_makeup[start_select.sons[i]].visit_time; //add all the visit time of the sons of the root node
             }
@@ -81,15 +90,21 @@ class Node
                 if(stree_makeup[start_select.sons[i]].visit_time == 0){
                     return stree_makeup[start_select.sons[i]];
                 }
-                /*else if(true_value < -stree_makeup[start_select.sons[i]].score/stree_makeup[start_select.sons[i]].visit_time+sqrt(2*log(visit_count))/(stree_makeup[start_select.sons[i]].visit_time)){
-                    true_value = -stree_makeup[start_select.sons[i]].score/stree_makeup[start_select.sons[i]].visit_time+sqrt(2*log(visit_count))/(stree_makeup[start_select.sons[i]].visit_time);
-                    index = i;
-                }*/
-                else if(true_value < stree_makeup[start_select.sons[i]].final_value){
-                    true_value = stree_makeup[start_select.sons[i]].final_value;
+                else if(true_value < (stree_makeup[start_select.sons[i]].score/stree_makeup[start_select.sons[i]].visit_time)+(sqrt(2*log(visit_count))/(stree_makeup[start_select.sons[i]].visit_time))){
+                    true_value = (stree_makeup[start_select.sons[i]].score/stree_makeup[start_select.sons[i]].visit_time)+(sqrt(2*log(visit_count))/(stree_makeup[start_select.sons[i]].visit_time));
                     index = i;
                 }
+                /*else if(strue_value < stree_makeup[start_select.sons[i]].final_value){
+                    strue_value = stree_makeup[start_select.sons[i]].final_value;
+                    sindex = i;
+                }*/
             }
+            //for(int i=0;i<(int)start_select.sons.size();i++){
+            //    cout<<"The "<<start_select.sons[i]<<" component of the tree has a visited time of "<<stree_makeup[start_select.sons[i]].visit_time<<endl;
+            //    cout<<"The "<<start_select.sons[i]<<" component of the tree has a value of "<<stree_makeup[start_select.sons[i]].score<<endl;
+            //}
+            //cout<<"true value is "<<strue_value<<endl;
+            //cout<<"selected the "<<start_select.sons[sindex]<<" component of the tree"<<endl;
             return stree_makeup[start_select.sons[index]];
         }
 
@@ -97,7 +112,7 @@ class Node
             vector<nodes> tree_makeup;
             Board::TDCA temp_board;
             Board::TDCA temp_available;
-            nodes root; //the new root is not initialize properly
+            nodes root; //the new root is initialized properly
             root.index=0;
             root.mother=-1;
             root.who_now = pawn;
@@ -107,7 +122,7 @@ class Node
             root.action.xy[0]=-1;
             root.action.xy[1]=-1;
             tree_makeup.push_back(root);
-            int running_times = 1000;
+            int running_times = 8000; //adjust this base on your computer
             while(running_times>0){
                 int temp_tree_size = 0;
                 for(int i=0;i<9;i++){
@@ -118,7 +133,7 @@ class Node
                 }
                 if(tree_makeup.size()==1){
                     temp_tree_size = (int)tree_makeup.size();
-                    tree_makeup = expand(mlast_move_row,mlast_move_column, temp_available, tree_makeup[0].index, tree_makeup);  //set up basic tow depth tree
+                    tree_makeup = expand(mlast_move_row, mlast_move_column, temp_available, tree_makeup[0].index, tree_makeup);  //set up basic tow depth tree
                 }
                 nodes leave = tree_makeup[0];
                 while(leave.sons.size()!=0){ //keep selecting until reach the leave
@@ -140,18 +155,17 @@ class Node
             }
             double max_value=-100;
             int index_of_max_value_node;
-            for(int i=0;i<(int)tree_makeup.size();i++){
+            int i=1;
+            while(tree_makeup[i].mother == 0){
                 if(tree_makeup[i].final_value>max_value){
                     max_value = tree_makeup[i].final_value;
                     index_of_max_value_node = i;
                 }
-            }
-            int i=1;
-            while(tree_makeup[i].mother == 0){
                 cout<<"The visit time of the "<<i<<" component of the tree is "<<tree_makeup[i].visit_time<<endl;
                 cout<<"The reward of the "<<i<<" component of the tree is "<<tree_makeup[i].final_value<<endl;
                 i++;
             }
+            cout<<"selected the "<<index_of_max_value_node<<" component of the tree"<<endl;
             return tree_makeup[index_of_max_value_node].action;
         }
 
