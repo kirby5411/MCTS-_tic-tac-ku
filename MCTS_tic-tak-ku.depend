@@ -1,11 +1,11 @@
 # depslib dependency file v1.0
-1603814668 source:d:\project\mcts_tic-tak-ku\mcts-_tic-tac-ku\main.cpp
+1604580277 source:d:\project\mcts_tic-tak-ku\mcts-_tic-tac-ku\main.cpp
 	<bits/stdc++.h>
 	"Board.h"
 	"Node.h"
 
 1603888688 d:\project\mcts_tic-tak-ku\mcts-_tic-tac-ku\board.h
 
-1603945457 d:\project\mcts_tic-tak-ku\mcts-_tic-tac-ku\node.h
+1604581818 d:\project\mcts_tic-tak-ku\mcts-_tic-tac-ku\node.h
 	"Board.h"
 

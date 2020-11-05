@@ -50,6 +50,7 @@ class Node
                 }
                 else{
                     if(ureward==0){
+                        //cout<<"update"<<endl;
                         utree_makeup[utemp].score = utree_makeup[utemp].score+1; // add a point to the winning side
                     }
                     else{ //leave the score as it is for the losing side
@@ -122,7 +123,7 @@ class Node
             root.action.xy[0]=-1;
             root.action.xy[1]=-1;
             tree_makeup.push_back(root);
-            int running_times = 8000; //adjust this base on your computer
+            int running_times = 3000; //adjust this base on your computer
             while(running_times>0){
                 int temp_tree_size = 0;
                 for(int i=0;i<9;i++){
@@ -161,11 +162,10 @@ class Node
                     max_value = tree_makeup[i].final_value;
                     index_of_max_value_node = i;
                 }
-                cout<<"The visit time of the "<<i<<" component of the tree is "<<tree_makeup[i].visit_time<<endl;
-                cout<<"The reward of the "<<i<<" component of the tree is "<<tree_makeup[i].final_value<<endl;
+                //cout<<"The visit time of the "<<i<<" component of the tree is "<<tree_makeup[i].visit_time<<endl;
+                //cout<<"The reward of the "<<i<<" component of the tree is "<<tree_makeup[i].final_value<<endl;
                 i++;
             }
-            cout<<"selected the "<<index_of_max_value_node<<" component of the tree"<<endl;
             return tree_makeup[index_of_max_value_node].action;
         }
 
